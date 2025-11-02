@@ -1,0 +1,409 @@
+{
+  "name": "Notifications: Send Email + Slack",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "98b2a23d-2cd3-4bc6-bdf8-9b00b2bcce91",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "fromEmail": "jonathan.barnette@gmail.com ",
+        "toEmail": "jonathan.barnette@gmail.com ",
+        "subject": "Support Ticket Update",
+        "html": "=Hello,\n\nYour support request has been received.<br>\nCategory: {{ $json.category }}<br>\nComplexity: {{ $json.complexity_score }}<br>\nTicket: <a href=\"{{ $json.ticket_url }}\">{{ $json.ticket_url }}</a><br>\n\nWe’ll get back to you shortly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        128
+      ],
+      "id": "604522c6-bb36-4092-a8de-db944bcd55e1",
+      "name": "Send email",
+      "webhookId": "bc00ad6d-849a-4ba6-8749-05af9e6cd0ea",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "smtp": {
+          "id": "nuu4lfQx6bB9PhD7",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09QG4HQ4BT",
+          "mode": "list",
+          "cachedResultName": "support-alerts"
+        },
+        "text": "=*New Support Ticket* \nCategory: {{ $json.category }} \nComplexity: {{ $json.complexity_score }} \nUrgent: {{ $json.is_urgent ? \"Yes\" : \"No\" }} \nTicket: {{ $json.ticket_url }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        656,
+        -160
+      ],
+      "id": "b128821b-4132-4e43-901b-335a29502410",
+      "name": "Send a message",
+      "webhookId": "e9917274-2b83-4a4b-8315-c9b5e209a712",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "slackApi": {
+          "id": "YXdTnRAQKgRGXliI",
+          "name": "Slack account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "596674db-24c7-4b53-818a-77dbd21725f0",
+              "name": "notification_status",
+              "value": "completed",
+              "type": "string"
+            },
+            {
+              "id": "6177cccb-e1e7-4b2f-8edf-226cfa143e3c",
+              "name": "email_status",
+              "value": "={{ ($json.email_status || \"\").trim() }}\n",
+              "type": "string"
+            },
+            {
+              "id": "94d82757-b2b0-4caf-aa10-a88fcc035128",
+              "name": "=slack_status",
+              "value": "={{ $json.slack_status ?? \"skipped\" }}",
+              "type": "string"
+            },
+            {
+              "id": "0ab241de-52cf-4387-b8e6-a4525691cb83",
+              "name": "=timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -16
+      ],
+      "id": "ee892e84-76be-4816-ba6d-b1a26e126967",
+      "name": "Notification Summary"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c867e57a-412e-41c8-acd4-829690e45b6d",
+              "name": "slack_status",
+              "value": "={{ $json.error ? \"failed\" : \"sent\" }}",
+              "type": "string"
+            },
+            {
+              "id": "ad61dd4f-36b6-4dae-afa3-bc991fc0cedd",
+              "name": "slack_error",
+              "value": "={{ $json.error?.message || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        -160
+      ],
+      "id": "5e7bdbc5-ca39-436b-8ad6-aa177283b22b",
+      "name": "Set Slack Result"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da0d6afb-79ad-4805-96b3-a78753cdad49",
+              "name": "email_status",
+              "value": "={{ $json.error ? \"failed\" : \"sent\" }}",
+              "type": "string"
+            },
+            {
+              "id": "154fcf62-b2b2-49c6-a9ee-9ca616e84f11",
+              "name": "email_error",
+              "value": "={{ $json.error?.message || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        128
+      ],
+      "id": "41d2f999-ad13-4456-bedf-aef5934ee8a9",
+      "name": "Set Email Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "throw new Error(\"Notification subflow encountered delivery failures\");"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        -112
+      ],
+      "id": "9ad8d58e-5a84-4789-a825-ca41fce35e29",
+      "name": "Throw Error"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2d046056-409a-475e-a014-63df26ba45e9",
+              "leftValue": "={{ $json.slack_status }}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "f692544d-968b-4c6c-b6a6-6acaa238a371",
+              "leftValue": "={{ $json.email_status }}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        -16
+      ],
+      "id": "944be4fc-98a0-4e4a-bd51-229d80959363",
+      "name": "If Email or Slack Failed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d3c644a1-bea7-4811-82fe-b360b9253c45",
+              "leftValue": "={{$json.is_urgent}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -96
+      ],
+      "id": "7997cc5e-2d6c-41da-b895-5371f5679978",
+      "name": "If Is Urgent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const requiredFields = [\n  \"body.from_email\",\n  \"is_urgent\",\n  \"category\",\n  \"complexity_score\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "b951336d-26cd-4161-8e52-7e872fdf137d",
+      "name": "Incoming Data Quality Check"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Incoming Data Quality Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Set Email Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Set Slack Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notification Summary": {
+      "main": [
+        [
+          {
+            "node": "If Email or Slack Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Slack Result": {
+      "main": [
+        [
+          {
+            "node": "Notification Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Email Result": {
+      "main": [
+        [
+          {
+            "node": "Notification Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Email or Slack Failed": {
+      "main": [
+        [
+          {
+            "node": "Throw Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Is Urgent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notification Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming Data Quality Check": {
+      "main": [
+        [
+          {
+            "node": "If Is Urgent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9b118140-5aff-4132-8580-c0f3c3190c04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
+  },
+  "id": "cD4wvwgvpnTeeFYg",
+  "tags": []
+}

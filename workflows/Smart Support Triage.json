@@ -32,179 +32,6 @@
     },
     {
       "parameters": {
-        "fromEmail": "jonathan.barnette@gmail.com",
-        "toEmail": "jonathan.barnette@gmail.com",
-        "subject": "=Triage Result:  {{ $json.category }} - {{ $json.complexity_score }}",
-        "html": "=From:  {{ $json.body.from_email }}<br>\nCategory: {{ $json.category }}<br>\nComlexity: {{ $json.complexity_score }}<br>\nTicket: {{$json.ticket_url}}<br>\n\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        2080,
-        -144
-      ],
-      "id": "6a759b87-6e04-441d-95bd-80093f15e51a",
-      "name": "Send email",
-      "webhookId": "8d400417-3247-4b81-a490-527235f07ca4",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "smtp": {
-          "id": "nuu4lfQx6bB9PhD7",
-          "name": "SMTP account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g",
-          "mode": "list",
-          "cachedResultName": "Support Triage Log",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "timestamp": "={{ $('Extract Category').item.json.received_at }}",
-            "from_email": "={{ $('Extract Category').item.json.body.from_email }}",
-            "subject": "={{ $('Extract Category').item.json.body.subject }}",
-            "category": "={{ $('Extract Category').item.json.category }}",
-            "complexity_score": "={{ $('Calculate Complexity + Urgency').item.json.complexity_score }}",
-            "is_complicated": "={{ $('Calculate Complexity + Urgency').item.json.is_complicated }}",
-            "ticket_url": "={{ $json.ticket_url }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "timestamp",
-              "displayName": "timestamp",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "from_email",
-              "displayName": "from_email",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "subject",
-              "displayName": "subject",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "category",
-              "displayName": "category",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "complexity_score",
-              "displayName": "complexity_score",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "is_complicated",
-              "displayName": "is_complicated",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "ticket_url",
-              "displayName": "ticket_url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        2080,
-        32
-      ],
-      "id": "287615e4-08c0-47d8-820d-473263cb6b0c",
-      "name": "Append row in sheet",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "TSD4gSnBYbeMwGmk",
-          "name": "Google Sheets account"
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "value": "C09QG4HQ4BT",
-          "mode": "list",
-          "cachedResultName": "support-alerts"
-        },
-        "text": "=🚨 *URGENT SUPPORT ALERT* 🚨\n\n*Category:* {{ $('Extract Category').item.json.category }}\n*Complexity:* {{ $('Calculate Complexity + Urgency').item.json.complexity_score }}\n*From:* {{ $('Webhook').item.json.body.from_email }}\n\n*Subject:* {{ $('Webhook').item.json.body.subject }}\n{{ $('Webhook').item.json.body.body }}\n\nTicket: {{ $json.ticket_url }}",
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        2304,
-        272
-      ],
-      "id": "bdec6fa6-bf4a-4f0e-a277-17f846d32f61",
-      "name": "Send a message",
-      "webhookId": "0a2796f1-01a7-44cf-b6f0-294f7734751b",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "slackApi": {
-          "id": "snYkFVRWcAFZijN6",
-          "name": "Slack account 2"
-        }
-      }
-    },
-    {
-      "parameters": {
         "project": {
           "__rl": true,
           "value": "10001",
@@ -236,7 +63,7 @@
       "type": "n8n-nodes-base.jira",
       "typeVersion": 1,
       "position": [
-        1504,
+        1440,
         32
       ],
       "id": "6963b9f8-47b0-413b-b952-4eafd3a3f354",
@@ -266,8 +93,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1856,
-        -144
+        1792,
+        -80
       ],
       "id": "39508cb4-9ff7-480a-8fb5-7d3a7bb48f00",
       "name": "Refresh JSON Data"
@@ -280,46 +107,12 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1792,
+        1728,
         -224
       ],
       "typeVersion": 1,
       "id": "c7f93948-db69-4446-afa7-4ef257882085",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "19e4ec7d-90d0-4da6-b2f6-a1ebf7ab47a2",
-              "leftValue": "={{ $json.is_urgent }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2080,
-        272
-      ],
-      "id": "ae701b8c-f5a7-47c8-9e91-dbf4d05aa047",
-      "name": "If Urgent"
     },
     {
       "parameters": {
@@ -402,7 +195,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1680,
+        1616,
         32
       ],
       "id": "8ccb523e-e0ea-4284-b570-4716a19be652",
@@ -432,11 +225,63 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1856,
-        272
+        1792,
+        240
       ],
       "id": "4c2d9daa-432a-48cc-9958-6c6085a7561e",
       "name": "Set ticket_url1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cD4wvwgvpnTeeFYg",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/cD4wvwgvpnTeeFYg",
+          "cachedResultName": "Notifications Subflow: Send Email + Slack"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2016,
+        -32
+      ],
+      "id": "0221e4fe-0a0a-4ef3-92d1-5bb461e7621a",
+      "name": "Notifications Subflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NrYVXVU5z2Qsh3W6",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/NrYVXVU5z2Qsh3W6",
+          "cachedResultName": "Logging Subflow: Log Support Entry"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2016,
+        224
+      ],
+      "id": "6ba84b8f-59d8-445e-8d84-a87a3dc38c02",
+      "name": "Logging Subflow"
     }
   ],
   "pinData": {},
@@ -463,22 +308,6 @@
         ]
       ]
     },
-    "Append row in sheet": {
-      "main": [
-        [],
-        []
-      ]
-    },
-    "Send email": {
-      "main": [
-        []
-      ]
-    },
-    "Send a message": {
-      "main": [
-        []
-      ]
-    },
     "Create A Bug": {
       "main": [
         [
@@ -494,33 +323,16 @@
       "main": [
         [
           {
-            "node": "Send email",
+            "node": "Notifications Subflow",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Append row in sheet",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If Urgent",
+            "node": "Logging Subflow",
             "type": "main",
             "index": 0
           }
         ]
-      ]
-    },
-    "If Urgent": {
-      "main": [
-        [
-          {
-            "node": "Send a message",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
       ]
     },
     "Calculate Complexity + Urgency": {
@@ -572,17 +384,12 @@
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Notifications Subflow",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Send email",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If Urgent",
+            "node": "Logging Subflow",
             "type": "main",
             "index": 0
           }
@@ -597,7 +404,7 @@
     "availableInMCP": false,
     "errorWorkflow": "TBk81utIUYxRkhaI"
   },
-  "versionId": "730138bf-f709-4371-84bf-54b9f21b1beb",
+  "versionId": "68c81df7-a668-4c8f-8cf7-58774123cdf4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"

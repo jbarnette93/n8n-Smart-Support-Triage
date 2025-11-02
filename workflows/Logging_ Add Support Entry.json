@@ -1,0 +1,292 @@
+{
+  "name": "Logging: Add Support Entry",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3974cc0c-4422-4d4f-af45-e6c73082e8d2",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g",
+          "mode": "list",
+          "cachedResultName": "Support Triage Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.received_at }}",
+            "from_email": "={{ $json.body.from_email }}",
+            "subject": "={{ $json.body.subject }}",
+            "category": "={{ $json.category }}",
+            "complexity_score": "={{ $json.complexity_score }}",
+            "is_complicated": "={{ $json.is_complicated }}",
+            "ticket_url": "={{ $json.ticket_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from_email",
+              "displayName": "from_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "complexity_score",
+              "displayName": "complexity_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "is_complicated",
+              "displayName": "is_complicated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket_url",
+              "displayName": "ticket_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2440fe4a-ff97-48f3-83e0-d58c480a9a15",
+      "name": "Append row in sheet",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TSD4gSnBYbeMwGmk",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b2c96f8-790a-481e-8422-6697e915e415",
+              "name": "log_status",
+              "value": "={{ $json.error ? \"failed\" : \"Google Sheets Updated\" }}",
+              "type": "string"
+            },
+            {
+              "id": "f2c7b863-c9da-4859-9f69-ee301cd808ac",
+              "name": "log_error",
+              "value": "={{ $json.error?.message || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "46902f4d-377b-4cf0-bc07-54e9e72597da",
+      "name": "Set Google Sheet Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f4765649-cf4f-4688-aa29-6334c3d765b2",
+              "leftValue": "={{ $json.log_status }}",
+              "rightValue": "=failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "fbf58741-cc9e-4366-b218-b870b4ca36b0",
+      "name": "If Append Failed"
+    },
+    {
+      "parameters": {
+        "jsCode": "throw new Error(\"Logging subflow encountered failure appending to Google Sheets\");\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "2a97d710-14c9-4bc9-a7f9-cb25bbdafb2f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const requiredFields = [\n  \"received_at\",\n  \"body.subject\",\n  \"category\",\n  \"complexity_score\",\n  \"is_complicated\",\n  \"body.from_email\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b18c6a2a-e1dc-4ebf-a53d-eaabd60e8acc",
+      "name": "Incoming Data Quality Check"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Incoming Data Quality Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Set Google Sheet Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Sheet Result": {
+      "main": [
+        [
+          {
+            "node": "If Append Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Append Failed": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming Data Quality Check": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "36d7b21f-9aad-4a5c-8018-6b779671ceb9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
+  },
+  "id": "NrYVXVU5z2Qsh3W6",
+  "tags": []
+}
