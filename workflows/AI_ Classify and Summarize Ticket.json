@@ -1,0 +1,285 @@
+{
+  "name": "AI: Classify and Summarize Ticket",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f65d7031-486c-4322-b1d6-614c7cdec1c5",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  // 1. Extract raw text and usage metrics\n  const raw =\n    $json.choices?.[0]?.message?.content ||\n    $json.output?.[0]?.content?.[0]?.text ||\n    $json.text ||\n    \"\";\n  if (!raw) throw new Error(\"No text content found in model output\");\n\n  // 2. Parse and clean\n  const text = raw.trim().replace(/```json|```/g, \"\");\n  const result = JSON.parse(text);\n\n  // 3. Validate required fields\n  const required = [\"category\", \"is_urgent\", \"complexity_score\", \"summary\"];\n  const missing = required.filter(f => result[f] === undefined);\n  if (missing.length) throw new Error(\"Missing fields: \" + missing.join(\", \"));\n\n  // 4. Capture token usage if available\n  const usage = $json.usage || {};\n  result.prompt_tokens = usage.prompt_tokens ?? null;\n  result.completion_tokens = usage.completion_tokens ?? null;\n  result.total_tokens = usage.total_tokens ?? null;\n  result.model = $json.model || \"unknown\";\n\n  return [{ json: result }];\n\n} catch (err) {\n  throw new Error(\"Invalid or non-JSON AI response: \" + err.message);\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        96
+      ],
+      "id": "ff121e52-95ee-41be-a1d2-037aebb4a36f",
+      "name": "Validate Returned Data"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an assistant that classifies incoming support messages.  \nAlways reply with a single compact JSON object.  \nInclude: category (Billing, Technical, General, Feedback, Integration, Other),  \nsummary (≤25 words), complexity_score (0-100), is_urgent (boolean), confidence (0-1).  \nDo not include commentary or formatting."
+            },
+            {
+              "content": "=Subject: {{ $json.body.subject }}\nBody: {{ $json.body.body }}\nReturn ONLY JSON."
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 150,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        224,
+        80
+      ],
+      "id": "484d7c28-6226-428d-bdce-e706c50a3976",
+      "name": "Deduce Complexity",
+      "credentials": {
+        "openAiApi": {
+          "id": "DghdlTo00rr9gRSv",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferLast"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        16
+      ],
+      "id": "23ba18d2-599e-49e3-9ab1-db901a950343",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "38d1addf-b39b-4f17-af63-fe0689ba5378",
+              "name": "ai_status",
+              "value": "success",
+              "type": "string"
+            },
+            {
+              "id": "9bc5d0ae-13e5-42be-990d-6cc42957b753",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "2748ae4a-6334-45ab-b1dc-4e635a2e29f2",
+              "name": "model",
+              "value": "gpt-4-mini",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        96
+      ],
+      "id": "57bc36bb-eaf1-42e6-9ac1-955b689e4bc5",
+      "name": "Add timestamp and success"
+    },
+    {
+      "parameters": {
+        "errorMessage": "OpenAI models not responding!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        800,
+        320
+      ],
+      "id": "058e77f2-0fee-414a-b808-6a7704cce456",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an assistant that classifies incoming support messages.  \nAlways reply with a single compact JSON object.  \nInclude: category (Billing, Technical, General, Feedback, Integration, Other),  \nsummary (≤25 words), complexity_score (0-100), is_urgent (boolean), confidence (0-1).  \nDo not include commentary or formatting."
+            },
+            {
+              "content": "=Subject: {{ $json.body.subject }}\nBody: {{ $json.body.body }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 150,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        512,
+        240
+      ],
+      "id": "7faaba6a-d850-4b2c-8a77-e823c0a569ae",
+      "name": "Backup (Lite Model)",
+      "credentials": {
+        "openAiApi": {
+          "id": "DghdlTo00rr9gRSv",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Deduce Complexity",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Returned Data": {
+      "main": [
+        [
+          {
+            "node": "Add timestamp and success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduce Complexity": {
+      "main": [
+        [
+          {
+            "node": "Validate Returned Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Backup (Lite Model)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add timestamp and success": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Backup (Lite Model)": {
+      "main": [
+        [
+          {
+            "node": "Validate Returned Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "65057e43-ba1d-4dca-9326-874a40b7fab4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
+  },
+  "id": "wX68YIqO7hrm7tB9",
+  "tags": [
+    {
+      "name": "ai",
+      "id": "3w2OPMov6D8MLfQ2",
+      "updatedAt": "2025-11-03T21:50:32.268Z",
+      "createdAt": "2025-11-03T21:50:32.268Z"
+    },
+    {
+      "name": "subflow",
+      "id": "Qi2m3tZwKJ0DSKtI",
+      "updatedAt": "2025-11-03T21:50:30.305Z",
+      "createdAt": "2025-11-03T21:50:30.305Z"
+    }
+  ]
+}

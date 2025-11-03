@@ -34,13 +34,13 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "timestamp": "={{ $json.received_at }}",
+            "timestamp": "={{ $json.timestamp }}",
             "from_email": "={{ $json.body.from_email }}",
             "subject": "={{ $json.body.subject }}",
             "category": "={{ $json.category }}",
             "complexity_score": "={{ $json.complexity_score }}",
-            "is_complicated": "={{ $json.is_complicated }}",
-            "ticket_url": "={{ $json.ticket_url }}"
+            "ticket_url": "={{ $json.ticket_url }}",
+            "AI cost (total tokens)": "={{ $json.total_tokens }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -96,7 +96,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": true
             },
             {
               "id": "ticket_url",
@@ -106,6 +107,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI cost (total tokens)",
+              "displayName": "AI cost (total tokens)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -208,7 +219,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const requiredFields = [\n  \"received_at\",\n  \"body.subject\",\n  \"category\",\n  \"complexity_score\",\n  \"is_complicated\",\n  \"body.from_email\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
+        "jsCode": "const requiredFields = [\n  \"timestamp\",\n  \"body.subject\",\n  \"category\",\n  \"complexity_score\",\n  \"body.from_email\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -220,7 +231,13 @@
       "name": "Incoming Data Quality Check"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {}
+      }
+    ]
+  },
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -280,13 +297,28 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "versionId": "36d7b21f-9aad-4a5c-8018-6b779671ceb9",
+  "versionId": "35dbfcc7-ef69-43fe-a08a-e2bd3e150fee",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
   },
   "id": "NrYVXVU5z2Qsh3W6",
-  "tags": []
+  "tags": [
+    {
+      "name": "logging",
+      "id": "3XTlLgYndT5EMXtH",
+      "updatedAt": "2025-11-03T21:50:47.393Z",
+      "createdAt": "2025-11-03T21:50:47.393Z"
+    },
+    {
+      "name": "subflow",
+      "id": "Qi2m3tZwKJ0DSKtI",
+      "updatedAt": "2025-11-03T21:50:30.305Z",
+      "createdAt": "2025-11-03T21:50:30.305Z"
+    }
+  ]
 }

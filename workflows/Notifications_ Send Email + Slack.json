@@ -399,11 +399,24 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "9b118140-5aff-4132-8580-c0f3c3190c04",
+  "versionId": "08bb2220-fcc2-45a1-b03b-fc3e36731736",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
   },
   "id": "cD4wvwgvpnTeeFYg",
-  "tags": []
+  "tags": [
+    {
+      "name": "subflow",
+      "id": "Qi2m3tZwKJ0DSKtI",
+      "updatedAt": "2025-11-03T21:50:30.305Z",
+      "createdAt": "2025-11-03T21:50:30.305Z"
+    },
+    {
+      "name": "notifications",
+      "id": "Vo4ucMLBPM9pVg3f",
+      "updatedAt": "2025-11-03T21:50:58.597Z",
+      "createdAt": "2025-11-03T21:50:58.597Z"
+    }
+  ]
 }
