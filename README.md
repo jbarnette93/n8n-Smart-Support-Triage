@@ -51,19 +51,6 @@ make up
 
 ---
 
-## 🧠 How It Works
-
-```mermaid
-graph TD
-    A[Webhook (or Manual Trigger)] --> B[OpenAI: Classify and Summarize Ticket]
-    B --> C[RAG Knowledge Base Vector Search (AI Agent)]
-    C --> D[Intelligent Routing]
-    D --> E[Slack / Email / Jira Ticket]
-    E --> F[Postgres Log]
-```
-
----
-
 ## ⚙️ Manual Setup (optional)
 
 If you prefer to run n8n manually instead of Docker:
