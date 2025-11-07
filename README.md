@@ -24,15 +24,13 @@ make up
 - Open `http://localhost:5678` to explore  
 - Run `make down` to stop or `make reset` for a clean rebuild  
 
-> The `Makefile` provides shortcuts for common commands like `make up`, `make down`, `make logs`, and `make reset`. This makes the project immediately portable and simple for others to run.
-
 ---
 
 ## 🔑 Key Features
 
 - 🔍 **AI-Powered Categorization**
   - Automatically classifies messages (Billing, Account, Technical, etc.)
-  - Extracts summary and confidence score using OpenAI or Gemini models.
+  - Extracts summary and confidence score using OpenAI models.
 
 - 🧮 **Complexity Scoring**
   - Uses an AI model to assign a complexity score.
@@ -51,7 +49,7 @@ make up
   - Integrates with Pinecone vector database to search knowledge base documentation and suggest fixes (sample knowledge base included under `docs/support_docs/`).
 
 - 🧰 **Extensible Architecture**
-  - Modular subflows: classification, routing, notification, logging, and error handling.
+  - Modular subflows: classification, notification, logging, and error handling.
   - Ready for Docker, CI/CD, and deployment pipelines.
 
 ---
