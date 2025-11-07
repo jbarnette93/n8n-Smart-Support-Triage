@@ -1,4 +1,4 @@
-# 🤖 Smart Support Desk (AI-Powered n8n Automation)
+# 🤖 Smart Support Triage (AI-Powered n8n Automation)
 
 **Smart Support Triage** is an intelligent automation system built with [n8n](https://n8n.io/) that leverages AI to classify, score, and route incoming support messages. It assesses message complexity, assigns categories (Billing, Account, Bug, etc.), and decides whether to create a **Jira ticket**, post a **Slack** alert, or send an **email** summary—while logging every event to **PostgreSQL**.
 
