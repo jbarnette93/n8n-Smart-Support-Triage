@@ -55,12 +55,11 @@ make up
 
 ```mermaid
 graph TD
-    A[Webhook (or Manual Trigger)]
-      --> B[OpenAI: Classify and Summarize Ticket]
-      --> C[RAG Knowledge Base Vector Search (AI Agent)]
-      --> D[Intelligent Routing]
-      --> E[Slack / Email / Jira Ticket]
-      --> F[Postgres Log]
+    A[Webhook (or Manual Trigger)] --> B[OpenAI: Classify and Summarize Ticket]
+    B --> C[RAG Knowledge Base Vector Search (AI Agent)]
+    C --> D[Intelligent Routing]
+    D --> E[Slack / Email / Jira Ticket]
+    E --> F[Postgres Log]
 ```
 
 ---
