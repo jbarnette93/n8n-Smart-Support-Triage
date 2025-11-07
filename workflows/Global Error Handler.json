@@ -24,7 +24,7 @@
       "typeVersion": 2.1,
       "position": [
         224,
-        0
+        96
       ],
       "id": "ddf9d6a0-3524-491b-a6f3-a79885c57e38",
       "name": "Send email",
@@ -52,7 +52,7 @@
       "typeVersion": 2.3,
       "position": [
         224,
-        192
+        288
       ],
       "id": "06b67aa7-e7d3-40c6-8703-e13ae38cfafe",
       "name": "Send a message",
@@ -63,6 +63,19 @@
           "name": "Slack account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  workflow: $json.workflow?.name,\n  node: $json.node?.name,\n  message: $json.error?.message,\n  time: new Date().toISOString(),\n  execution_url: $json.execution.url\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "4740eaa8-5e3d-4cc4-b5c4-e826ceb8cb1f",
+      "name": "Code in JavaScript"
     }
   ],
   "pinData": {},
@@ -71,16 +84,31 @@
       "main": [
         [
           {
-            "node": "Send email",
+            "node": "Send a message",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Send a message",
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send email",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Send email": {
+      "main": [
+        []
       ]
     }
   },
@@ -88,7 +116,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b90f1ef2-4958-4ed4-86cc-9f6c0ac719dc",
+  "versionId": "0a39029c-740f-407a-b7b5-c452d15e76f4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
@@ -96,10 +124,10 @@
   "id": "TBk81utIUYxRkhaI",
   "tags": [
     {
-      "name": "error",
-      "id": "gihtsygqwWRDjvTe",
       "updatedAt": "2025-11-03T21:51:29.638Z",
-      "createdAt": "2025-11-03T21:51:29.638Z"
+      "createdAt": "2025-11-03T21:51:29.638Z",
+      "id": "gihtsygqwWRDjvTe",
+      "name": "error"
     }
   ]
 }

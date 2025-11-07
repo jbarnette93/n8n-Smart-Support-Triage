@@ -1,0 +1,248 @@
+{
+  "name": "Vector Search KB (Pinecone)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "8f02d047-a0ec-464a-b3a5-8c2bf68eb6ed",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        768
+      ],
+      "id": "e91112eb-1cf1-4304-a29a-8c51c51a3a3d",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "DghdlTo00rr9gRSv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject: {{$json.body.subject}}\nBody: {{$json.body.body}}\nSummary: {{$json.summary}}",
+        "options": {
+          "systemMessage": "You are an AI Support Assistant helping triage incoming tickets.\nYou have access to the company’s documentation via your Vector Store tool.\nWhen a message comes in, search the docs for relevant fixes or instructions.\nSummarize your findings and suggest an actionable next step for the support agent.\n\nAlways return your final answer as JSON:\n{\n  \"suggested_fix\": \"...\",\n  \"related_docs\": [\"...\", \"...\"]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        544,
+        384
+      ],
+      "id": "c89e0751-548e-48b0-a290-4aacd173f00c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "responseFormat": "json_object",
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        608
+      ],
+      "id": "8130e239-2553-452e-8922-1eb0762b7ea1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "DghdlTo00rr9gRSv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn items.map(item => {\n  let parsed = {};\n  try {\n    parsed = JSON.parse(item.json.output);\n  } catch (e) {\n    parsed = { error: \"JSON parse failed\", raw_output: item.json.output };\n  }\n  return { json: parsed };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        320
+      ],
+      "id": "523f2076-9131-4021-9234-5ee7196b148b",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferLast"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1200,
+        224
+      ],
+      "id": "dcfbd2e0-da0d-4e08-9d0d-18b864708140",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool whenever you need to find relevant information or solutions from the support knowledge base. It searches company documentation and returns the most semantically similar documents.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "={{ $env.PINECONE_INDEX }}",
+          "mode": "id"
+        },
+        "topK": 3,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        608
+      ],
+      "id": "689a8ca0-a358-4726-b062-52a8e5f0fcba",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "Du9ViPgrBjjhQ7MR",
+          "name": "PineconeApi account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Code in JavaScript1": [
+      {
+        "json": {
+          "category": "Support Ticket Guidance",
+          "suggested_fix": "To write a good support ticket, ensure you provide a clear and concise subject, a detailed description of the issue, steps to reproduce the problem, any error messages encountered, and relevant system or environment details. This helps the support team understand and address the issue efficiently.",
+          "related_docs": [
+            "README.md",
+            "04-billing-invoices.md",
+            "10-sso-saml-oidc.md"
+          ]
+        }
+      }
+    ],
+    "AI Agent": [
+      {
+        "json": {
+          "output": "{\n  \"category\": \"Support Ticket Guidance\",\n  \"suggested_fix\": \"To write a good support ticket, ensure you provide a clear and concise subject, a detailed description of the issue, steps to reproduce the problem, any error messages encountered, and relevant system or environment details. This helps the support team understand and address the issue efficiently.\",\n  \"related_docs\": [\"README.md\", \"04-billing-invoices.md\", \"10-sso-saml-oidc.md\"]\n}"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ad4eb495-1702-49ac-93bc-456cd57c2d77",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
+  },
+  "id": "zlyfcskP0w7xveuG",
+  "tags": []
+}

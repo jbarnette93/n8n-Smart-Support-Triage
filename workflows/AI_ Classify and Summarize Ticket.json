@@ -11,12 +11,12 @@
         0,
         0
       ],
-      "id": "f65d7031-486c-4322-b1d6-614c7cdec1c5",
+      "id": "91818e43-27ab-40a4-b0ac-7eb76fdd497c",
       "name": "When Executed by Another Workflow"
     },
     {
       "parameters": {
-        "jsCode": "try {\n  // 1. Extract raw text and usage metrics\n  const raw =\n    $json.choices?.[0]?.message?.content ||\n    $json.output?.[0]?.content?.[0]?.text ||\n    $json.text ||\n    \"\";\n  if (!raw) throw new Error(\"No text content found in model output\");\n\n  // 2. Parse and clean\n  const text = raw.trim().replace(/```json|```/g, \"\");\n  const result = JSON.parse(text);\n\n  // 3. Validate required fields\n  const required = [\"category\", \"is_urgent\", \"complexity_score\", \"summary\"];\n  const missing = required.filter(f => result[f] === undefined);\n  if (missing.length) throw new Error(\"Missing fields: \" + missing.join(\", \"));\n\n  // 4. Capture token usage if available\n  const usage = $json.usage || {};\n  result.prompt_tokens = usage.prompt_tokens ?? null;\n  result.completion_tokens = usage.completion_tokens ?? null;\n  result.total_tokens = usage.total_tokens ?? null;\n  result.model = $json.model || \"unknown\";\n\n  return [{ json: result }];\n\n} catch (err) {\n  throw new Error(\"Invalid or non-JSON AI response: \" + err.message);\n}"
+        "jsCode": "try {\n  const raw =\n    $json.choices?.[0]?.message?.content ||\n    $json.output?.[0]?.content?.[0]?.text ||\n    $json.text ||\n    \"\";\n  if (!raw) throw new Error(\"No text content found in model output\");\n\n  const text = raw.trim().replace(/```json|```/g, \"\");\n  const result = JSON.parse(text);\n\n  const required = [\"category\", \"is_urgent\", \"complexity_score\", \"summary\"];\n  const missing = required.filter(f => result[f] === undefined);\n  if (missing.length) throw new Error(\"Missing fields: \" + missing.join(\", \"));\n\n  const usage = $json.usage || {};\n  result.prompt_tokens = usage.prompt_tokens ?? null;\n  result.completion_tokens = usage.completion_tokens ?? null;\n  result.total_tokens = usage.total_tokens ?? null;\n  result.model = $json.model || \"unknown\";\n\n  return [{ json: result }];\n\n} catch (err) {\n  throw new Error(\"Invalid or non-JSON AI response: \" + err.message);\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -24,7 +24,7 @@
         912,
         96
       ],
-      "id": "ff121e52-95ee-41be-a1d2-037aebb4a36f",
+      "id": "9bda978b-dade-4c33-a017-aecf3d113281",
       "name": "Validate Returned Data"
     },
     {
@@ -59,8 +59,10 @@
         224,
         80
       ],
-      "id": "484d7c28-6226-428d-bdce-e706c50a3976",
+      "id": "26ed6675-c2f0-4959-81f7-c8a626c499f3",
       "name": "Deduce Complexity",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
@@ -87,7 +89,7 @@
         1360,
         16
       ],
-      "id": "23ba18d2-599e-49e3-9ab1-db901a950343",
+      "id": "57f9383a-1c52-437c-afbf-ca5ba73ce36f",
       "name": "Merge"
     },
     {
@@ -123,21 +125,8 @@
         1136,
         96
       ],
-      "id": "57bc36bb-eaf1-42e6-9ac1-955b689e4bc5",
+      "id": "39c59be6-2b11-4f5e-ae2f-005c085be621",
       "name": "Add timestamp and success"
-    },
-    {
-      "parameters": {
-        "errorMessage": "OpenAI models not responding!"
-      },
-      "type": "n8n-nodes-base.stopAndError",
-      "typeVersion": 1,
-      "position": [
-        800,
-        320
-      ],
-      "id": "058e77f2-0fee-414a-b808-6a7704cce456",
-      "name": "Stop and Error"
     },
     {
       "parameters": {
@@ -170,15 +159,14 @@
         512,
         240
       ],
-      "id": "7faaba6a-d850-4b2c-8a77-e823c0a569ae",
+      "id": "276d9758-00db-4dc0-a3e1-a67c71d76f47",
       "name": "Backup (Lite Model)",
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
           "name": "OpenAi account"
         }
-      },
-      "onError": "continueErrorOutput"
+      }
     }
   ],
   "pinData": {},
@@ -248,38 +236,34 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Stop and Error",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "TBk81utIUYxRkhaI"
   },
-  "versionId": "65057e43-ba1d-4dca-9326-874a40b7fab4",
+  "versionId": "94815598-e959-4c41-9c56-82cccdfb04c0",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
   },
-  "id": "wX68YIqO7hrm7tB9",
+  "id": "JIPKS0Jyww4kfE8q",
   "tags": [
     {
-      "name": "ai",
-      "id": "3w2OPMov6D8MLfQ2",
       "updatedAt": "2025-11-03T21:50:32.268Z",
-      "createdAt": "2025-11-03T21:50:32.268Z"
+      "createdAt": "2025-11-03T21:50:32.268Z",
+      "id": "3w2OPMov6D8MLfQ2",
+      "name": "ai"
     },
     {
-      "name": "subflow",
-      "id": "Qi2m3tZwKJ0DSKtI",
       "updatedAt": "2025-11-03T21:50:30.305Z",
-      "createdAt": "2025-11-03T21:50:30.305Z"
+      "createdAt": "2025-11-03T21:50:30.305Z",
+      "id": "Qi2m3tZwKJ0DSKtI",
+      "name": "subflow"
     }
   ]
 }

@@ -8,49 +8,77 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        0,
-        0
+        -288,
+        288
       ],
       "id": "3974cc0c-4422-4d4f-af45-e6c73082e8d2",
       "name": "When Executed by Another Workflow"
     },
     {
       "parameters": {
-        "operation": "append",
-        "documentId": {
+        "jsCode": "const requiredFields = [\n  \"timestamp\",\n  \"body.subject\",\n  \"category\",\n  \"complexity_score\",\n  \"body.from_email\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        288
+      ],
+      "id": "b18c6a2a-e1dc-4ebf-a53d-eaabd60e8acc",
+      "name": "Incoming Data Quality Check"
+    },
+    {
+      "parameters": {
+        "schema": {
           "__rl": true,
-          "value": "1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g",
           "mode": "list",
-          "cachedResultName": "Support Triage Log",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit?usp=drivesdk"
+          "value": "public"
         },
-        "sheetName": {
+        "table": {
           "__rl": true,
-          "value": "gid=0",
+          "value": "support_tickets",
           "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1USTX9gMse_eje9s3w6dxYS3oRl1kYQ4QR_bAmdoW88g/edit#gid=0"
+          "cachedResultName": "support_tickets"
         },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "timestamp": "={{ $json.timestamp }}",
+            "is_urgent": "={{ $json.is_urgent }}",
+            "complexity_score": "={{ $json.complexity_score }}",
+            "confidence": "={{ $json.confidence }}",
             "from_email": "={{ $json.body.from_email }}",
             "subject": "={{ $json.body.subject }}",
             "category": "={{ $json.category }}",
-            "complexity_score": "={{ $json.complexity_score }}",
+            "suggested_fix": "={{ $json.suggested_fix }}",
             "ticket_url": "={{ $json.ticket_url }}",
-            "AI cost (total tokens)": "={{ $json.total_tokens }}"
+            "ai_summary": "={{ JSON.stringify($json) }}",
+            "created_at": "={{ $json.timestamp }}",
+            "received_at": "={{ $json.timestamp }}",
+            "notification_status": "={{ $json.notification_status }}",
+            "email_status": "{{ $json.email_status }}",
+            "slack_status": "{{ $json.slack_status }}"
           },
-          "matchingColumns": [],
+          "matchingColumns": [
+            "id"
+          ],
           "schema": [
             {
-              "id": "timestamp",
-              "displayName": "timestamp",
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "received_at",
+              "displayName": "received_at",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "type": "string",
+              "type": "dateTime",
               "canBeUsedToMatch": true
             },
             {
@@ -86,18 +114,35 @@
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "type": "string",
+              "type": "number",
               "canBeUsedToMatch": true
             },
             {
-              "id": "is_complicated",
-              "displayName": "is_complicated",
+              "id": "is_urgent",
+              "displayName": "is_urgent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "suggested_fix",
+              "displayName": "suggested_fix",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": true
+              "canBeUsedToMatch": true
             },
             {
               "id": "ticket_url",
@@ -109,8 +154,45 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "AI cost (total tokens)",
-              "displayName": "AI cost (total tokens)",
+              "id": "notification_status",
+              "displayName": "notification_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_summary",
+              "displayName": "ai_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slack_status",
+              "displayName": "slack_status",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -124,23 +206,21 @@
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
       "position": [
-        416,
-        0
+        160,
+        288
       ],
-      "id": "2440fe4a-ff97-48f3-83e0-d58c480a9a15",
-      "name": "Append row in sheet",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
+      "id": "b6326134-e659-4a72-8dac-259d24f8b20f",
+      "name": "Insert rows in a table",
       "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "TSD4gSnBYbeMwGmk",
-          "name": "Google Sheets account"
+        "postgres": {
+          "id": "7S8EfVnGnVXDYVJo",
+          "name": "Postgres account"
         }
       },
-      "onError": "continueRegularOutput"
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -149,7 +229,7 @@
             {
               "id": "1b2c96f8-790a-481e-8422-6697e915e415",
               "name": "log_status",
-              "value": "={{ $json.error ? \"failed\" : \"Google Sheets Updated\" }}",
+              "value": "={{ $json.error ? \"failed\" : \"Postgres Successfully Updated\" }}",
               "type": "string"
             },
             {
@@ -165,79 +245,14 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        624,
-        0
+        384,
+        192
       ],
-      "id": "46902f4d-377b-4cf0-bc07-54e9e72597da",
-      "name": "Set Google Sheet Result"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "f4765649-cf4f-4688-aa29-6334c3d765b2",
-              "leftValue": "={{ $json.log_status }}",
-              "rightValue": "=failed",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        832,
-        0
-      ],
-      "id": "fbf58741-cc9e-4366-b218-b870b4ca36b0",
-      "name": "If Append Failed"
-    },
-    {
-      "parameters": {
-        "jsCode": "throw new Error(\"Logging subflow encountered failure appending to Google Sheets\");\n\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1040,
-        -96
-      ],
-      "id": "2a97d710-14c9-4bc9-a7f9-cb25bbdafb2f",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "jsCode": "const requiredFields = [\n  \"timestamp\",\n  \"body.subject\",\n  \"category\",\n  \"complexity_score\",\n  \"body.from_email\",\n  \"ticket_url\"\n];\n\n// Helper: get nested value by path\nfunction get(obj, path) {\n  return path.split('.').reduce((acc, key) => acc && acc[key], obj);\n}\n\nfor (const field of requiredFields) {\n  const value = get($json, field);\n  if (value === undefined || value === null || value === \"\") {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn [{ json: $json }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        208,
-        0
-      ],
-      "id": "b18c6a2a-e1dc-4ebf-a53d-eaabd60e8acc",
-      "name": "Incoming Data Quality Check"
+      "id": "6cdd0149-55e5-4c99-9614-689c09ff1575",
+      "name": "Set Postgres Result"
     }
   ],
-  "pinData": {
-    "When Executed by Another Workflow": [
-      {
-        "json": {}
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -250,48 +265,27 @@
         ]
       ]
     },
-    "Append row in sheet": {
-      "main": [
-        [
-          {
-            "node": "Set Google Sheet Result",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set Google Sheet Result": {
-      "main": [
-        [
-          {
-            "node": "If Append Failed",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Append Failed": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Incoming Data Quality Check": {
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Insert rows in a table",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Set Postgres Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   },
@@ -301,24 +295,11 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "35dbfcc7-ef69-43fe-a08a-e2bd3e150fee",
+  "versionId": "81ef86f9-af32-401c-8656-d1ab20fb9188",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
   },
   "id": "NrYVXVU5z2Qsh3W6",
-  "tags": [
-    {
-      "name": "logging",
-      "id": "3XTlLgYndT5EMXtH",
-      "updatedAt": "2025-11-03T21:50:47.393Z",
-      "createdAt": "2025-11-03T21:50:47.393Z"
-    },
-    {
-      "name": "subflow",
-      "id": "Qi2m3tZwKJ0DSKtI",
-      "updatedAt": "2025-11-03T21:50:30.305Z",
-      "createdAt": "2025-11-03T21:50:30.305Z"
-    }
-  ]
+  "tags": []
 }

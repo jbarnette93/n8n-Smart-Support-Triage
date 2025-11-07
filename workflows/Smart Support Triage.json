@@ -3,22 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "/support-intake",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        864,
-        32
-      ],
-      "id": "be9c3cec-e694-44cc-8676-00cf435f7d75",
-      "name": "Webhook",
-      "webhookId": "52e3ad83-7b2e-48e9-bc3e-e37bc2996bdb"
-    },
-    {
-      "parameters": {
         "project": {
           "__rl": true,
           "value": "10001",
@@ -39,19 +23,14 @@
             "mode": "list",
             "cachedResultName": "Jonathan Barnette"
           },
-          "description": "=*From:* {{$json.body.from_email || $json.from_email || \"unknown\"}}\n\n*Category:* {{$json.category || \"Uncategorized\"}}\n*Complexity:* {{$json.complexity_score || \"n/a\"}}\n*Urgent:* {{$json.is_urgent ? \"Yes\" : \"No\"}}\n\n*Subject:* {{$json.body.subject || $json.subject || \"No subject\"}}\n\n*Message:*\n{{$json.body.body || $json.bodyText || \"No message text\"}}\n\n*Received:* {{$json.received_at || new Date().toISOString()}}\n`",
-          "priority": {
-            "__rl": true,
-            "value": "={{ $json.is_urgent ? \"4\" : \"3\" }}",
-            "mode": ""
-          }
+          "description": "=*From:* {{$json.body.from_email || $json.from_email || \"unknown\"}}\n\n*Category:* {{$json.category || \"Uncategorized\"}}\n*Complexity:* {{$json.complexity_score || \"n/a\"}}\n*Urgent:* {{$json.is_urgent ? \"Yes\" : \"No\"}}\n\n*Subject:* {{$json.body.subject || $json.subject || \"No subject\"}}\n\n*Message:*\n{{$json.body.body || $json.bodyText || \"No message text\"}}\n\n*AI Suggested Fix:* \n{{ $json.suggested_fix }}\n\n*Related Knowledge Docs:* {{ $json.related_docs }}\n\n*Received:* {{$json.received_at || new Date().toISOString()}}"
         }
       },
       "type": "n8n-nodes-base.jira",
       "typeVersion": 1,
       "position": [
-        1648,
-        32
+        1696,
+        -32
       ],
       "id": "6963b9f8-47b0-413b-b952-4eafd3a3f354",
       "name": "Create A Bug",
@@ -80,26 +59,11 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2000,
-        -80
+        2144,
+        -96
       ],
       "id": "39508cb4-9ff7-480a-8fb5-7d3a7bb48f00",
       "name": "Refresh JSON Data"
-    },
-    {
-      "parameters": {
-        "content": "\"Create A Bug\" clears all previous data like urgency, merge needed to fetch it back",
-        "height": 96,
-        "width": 224
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        1728,
-        -224
-      ],
-      "typeVersion": 1,
-      "id": "c7f93948-db69-4446-afa7-4ef257882085",
-      "name": "Sticky Note"
     },
     {
       "parameters": {
@@ -112,16 +76,6 @@
           },
           "conditions": [
             {
-              "id": "298ea938-29b5-4be7-aad1-7d323e44f590",
-              "leftValue": "={{ $json.is_complicated }}",
-              "rightValue": "true",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            },
-            {
               "id": "a7a887af-39a6-4f03-8b10-036d8982ffee",
               "leftValue": "={{ $json.is_urgent }}",
               "rightValue": "",
@@ -129,6 +83,15 @@
                 "type": "boolean",
                 "operation": "true",
                 "singleValue": true
+              }
+            },
+            {
+              "id": "33f09925-734e-4442-8339-7337288c87e3",
+              "leftValue": "={{ $json.complexity_score }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
               }
             }
           ],
@@ -139,8 +102,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1280,
-        32
+        1472,
+        -32
       ],
       "id": "4b9ecf91-b8f8-4d9f-9d01-baf744c3a6cc",
       "name": "If Bug Is Complex"
@@ -169,11 +132,67 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1824,
-        32
+        1920,
+        -32
       ],
       "id": "8ccb523e-e0ea-4284-b570-4716a19be652",
       "name": "Set ticket_url"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cD4wvwgvpnTeeFYg",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/cD4wvwgvpnTeeFYg",
+          "cachedResultName": "Notifications: Send Email + Slack"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2368,
+        96
+      ],
+      "id": "0221e4fe-0a0a-4ef3-92d1-5bb461e7621a",
+      "name": "Notifications Subflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NrYVXVU5z2Qsh3W6",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/NrYVXVU5z2Qsh3W6",
+          "cachedResultName": "Logging: Add Support Entry"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2816,
+        0
+      ],
+      "id": "6ba84b8f-59d8-445e-8d84-a87a3dc38c02",
+      "name": "Logging Subflow"
     },
     {
       "parameters": {
@@ -199,20 +218,20 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1824,
-        240
+        2144,
+        144
       ],
       "id": "4c2d9daa-432a-48cc-9958-6c6085a7561e",
-      "name": "Set ticket_url1"
+      "name": "Set No Ticket Created"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "cD4wvwgvpnTeeFYg",
+          "value": "zlyfcskP0w7xveuG",
           "mode": "list",
-          "cachedResultUrl": "/workflow/cD4wvwgvpnTeeFYg",
-          "cachedResultName": "Notifications Subflow: Send Email + Slack"
+          "cachedResultUrl": "/workflow/zlyfcskP0w7xveuG",
+          "cachedResultName": "Vector Search KB (Pinecone)"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -225,115 +244,112 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        2224,
+        1248,
         -32
       ],
-      "id": "0221e4fe-0a0a-4ef3-92d1-5bb461e7621a",
-      "name": "Notifications Subflow"
+      "id": "db188911-81f6-410c-95e7-a41287b0fa95",
+      "name": "Call 'Vector Search KB'"
     },
     {
       "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "NrYVXVU5z2Qsh3W6",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/NrYVXVU5z2Qsh3W6",
-          "cachedResultName": "Logging Subflow: Log Support Entry"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {}
-        },
+        "httpMethod": "POST",
+        "path": "/support-intake",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        576,
+        -96
+      ],
+      "id": "be9c3cec-e694-44cc-8676-00cf435f7d75",
+      "name": "Webhook",
+      "webhookId": "52e3ad83-7b2e-48e9-bc3e-e37bc2996bdb"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
         "options": {
-          "waitForSubWorkflow": true
+          "clashHandling": {
+            "values": {
+              "resolveClash": "preferInput1"
+            }
+          },
+          "includeUnpaired": true
         }
       },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
       "position": [
-        2224,
-        224
+        2592,
+        0
       ],
-      "id": "6ba84b8f-59d8-445e-8d84-a87a3dc38c02",
-      "name": "Logging Subflow"
+      "id": "b8fa2743-11e2-4857-b678-fd1db252c153",
+      "name": "Refresh JSON Data1"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "email",
+              "value": "={{ $json.body.from_email }}"
+            },
+            {
+              "key": "subject",
+              "value": "={{ $json.body.subject }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "0e85afed-8ed6-49e0-9ed7-571268c790b1",
+      "name": "Execution Data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        576,
+        96
+      ],
+      "id": "c011df7c-61f4-46af-bf90-3d37816dd767",
+      "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "wX68YIqO7hrm7tB9",
+          "value": "JIPKS0Jyww4kfE8q",
           "mode": "list",
-          "cachedResultUrl": "/workflow/wX68YIqO7hrm7tB9",
+          "cachedResultUrl": "/workflow/JIPKS0Jyww4kfE8q",
           "cachedResultName": "AI: Classify and Summarize Ticket"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
+          "value": {}
         },
         "options": {}
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        1072,
-        32
+        1024,
+        -32
       ],
-      "id": "df0913a1-ea75-4c1e-b237-a53f8b65e8fd",
+      "id": "83395699-2253-4fac-8fe1-eef8030735ae",
       "name": "Call 'AI: Classify and Summarize Ticket'"
     }
   ],
-  "pinData": {
-    "Call 'AI: Classify and Summarize Ticket'": [
-      {
-        "json": {
-          "headers": {
-            "host": "localhost:5678",
-            "user-agent": "curl/8.7.1",
-            "accept": "*/*",
-            "content-type": "application/json",
-            "content-length": "165"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "from_email": "jane@example.com",
-            "subject": "URGENT: customers cannot log in",
-            "body": "Website login is down for all users. Need immediate help."
-          },
-          "webhookUrl": "http://localhost:5678/webhook-test/support-intake",
-          "executionMode": "test",
-          "category": "Technical",
-          "summary": "Website login is down for all users, immediate help needed.",
-          "complexity_score": 80,
-          "is_urgent": true,
-          "confidence": 0.95,
-          "prompt_tokens": null,
-          "completion_tokens": null,
-          "total_tokens": 150,
-          "model": "gpt-4-mini",
-          "ai_status": "success",
-          "timestamp": "2025-11-03T21:44:20.958Z"
-        },
-        "binary": {}
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Call 'AI: Classify and Summarize Ticket'",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Create A Bug": {
       "main": [
         [
@@ -354,7 +370,7 @@
             "index": 0
           },
           {
-            "node": "Logging Subflow",
+            "node": "Refresh JSON Data1",
             "type": "main",
             "index": 0
           }
@@ -377,7 +393,7 @@
         ],
         [
           {
-            "node": "Set ticket_url1",
+            "node": "Set No Ticket Created",
             "type": "main",
             "index": 0
           }
@@ -395,16 +411,77 @@
         ]
       ]
     },
-    "Set ticket_url1": {
+    "Set No Ticket Created": {
       "main": [
         [
           {
             "node": "Notifications Subflow",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Call 'Vector Search KB'": {
+      "main": [
+        [
+          {
+            "node": "If Bug Is Complex",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notifications Subflow": {
+      "main": [
+        [
+          {
+            "node": "Refresh JSON Data1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Refresh JSON Data1": {
+      "main": [
+        [
           {
             "node": "Logging Subflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execution Data": {
+      "main": [
+        [
+          {
+            "node": "Call 'AI: Classify and Summarize Ticket'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
             "type": "main",
             "index": 0
           }
@@ -415,7 +492,7 @@
       "main": [
         [
           {
-            "node": "If Bug Is Complex",
+            "node": "Call 'Vector Search KB'",
             "type": "main",
             "index": 0
           }
@@ -430,7 +507,7 @@
     "availableInMCP": false,
     "errorWorkflow": "TBk81utIUYxRkhaI"
   },
-  "versionId": "ea72ab02-9e42-4313-8518-b7b3e02c844c",
+  "versionId": "957660d1-6c96-4286-afba-4c82cf6f25e3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
@@ -438,10 +515,10 @@
   "id": "DZIo9vM7pkQWQ9jU",
   "tags": [
     {
-      "name": "main",
-      "id": "DMomVQ5hMUCdvmSX",
-      "updatedAt": "2025-11-03T21:51:21.430Z",
-      "createdAt": "2025-11-03T21:51:21.430Z"
+      "updatedAt": "2025-10-31T15:13:18.697Z",
+      "createdAt": "2025-10-31T15:13:18.697Z",
+      "id": "2yvNh6ZccJtOZWm3",
+      "name": "v1"
     }
   ]
 }

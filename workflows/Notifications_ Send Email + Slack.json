@@ -87,7 +87,7 @@
             {
               "id": "6177cccb-e1e7-4b2f-8edf-226cfa143e3c",
               "name": "email_status",
-              "value": "={{ ($json.email_status || \"\").trim() }}\n",
+              "value": "={{ String($json.email_status || \"\").replace(/\\s+$/, \"\") }}",
               "type": "string"
             },
             {
@@ -104,7 +104,6 @@
             }
           ]
         },
-        "includeOtherFields": true,
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -175,63 +174,6 @@
       ],
       "id": "41d2f999-ad13-4456-bedf-aef5934ee8a9",
       "name": "Set Email Result"
-    },
-    {
-      "parameters": {
-        "jsCode": "throw new Error(\"Notification subflow encountered delivery failures\");"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1536,
-        -112
-      ],
-      "id": "9ad8d58e-5a84-4789-a825-ca41fce35e29",
-      "name": "Throw Error"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "2d046056-409a-475e-a014-63df26ba45e9",
-              "leftValue": "={{ $json.slack_status }}",
-              "rightValue": "failed",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            },
-            {
-              "id": "f692544d-968b-4c6c-b6a6-6acaa238a371",
-              "leftValue": "={{ $json.email_status }}",
-              "rightValue": "failed",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "or"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1328,
-        -16
-      ],
-      "id": "944be4fc-98a0-4e4a-bd51-229d80959363",
-      "name": "If Email or Slack Failed"
     },
     {
       "parameters": {
@@ -318,13 +260,7 @@
     },
     "Notification Summary": {
       "main": [
-        [
-          {
-            "node": "If Email or Slack Failed",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Set Slack Result": {
@@ -343,17 +279,6 @@
         [
           {
             "node": "Notification Summary",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Email or Slack Failed": {
-      "main": [
-        [
-          {
-            "node": "Throw Error",
             "type": "main",
             "index": 0
           }
@@ -399,7 +324,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "08bb2220-fcc2-45a1-b03b-fc3e36731736",
+  "versionId": "b95a055b-fd9f-4268-86b3-886db8973ff6",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
@@ -407,16 +332,16 @@
   "id": "cD4wvwgvpnTeeFYg",
   "tags": [
     {
-      "name": "subflow",
-      "id": "Qi2m3tZwKJ0DSKtI",
       "updatedAt": "2025-11-03T21:50:30.305Z",
-      "createdAt": "2025-11-03T21:50:30.305Z"
+      "createdAt": "2025-11-03T21:50:30.305Z",
+      "id": "Qi2m3tZwKJ0DSKtI",
+      "name": "subflow"
     },
     {
-      "name": "notifications",
-      "id": "Vo4ucMLBPM9pVg3f",
       "updatedAt": "2025-11-03T21:50:58.597Z",
-      "createdAt": "2025-11-03T21:50:58.597Z"
+      "createdAt": "2025-11-03T21:50:58.597Z",
+      "id": "Vo4ucMLBPM9pVg3f",
+      "name": "notifications"
     }
   ]
 }

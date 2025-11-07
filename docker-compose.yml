@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: triage-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - triage-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: triage-n8n
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "5678:5678"
+    env_file:
+      - .env
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${PG_DB}
+      DB_POSTGRESDB_USER: ${PG_USER}
+      DB_POSTGRESDB_PASSWORD: ${PG_PASSWORD}
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "⏳ Waiting for Postgres to be ready..."
+        sleep 8
+        n8n start
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/data/workflows
+    networks:
+      - triage-net
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  triage-net:
+    driver: bridge
