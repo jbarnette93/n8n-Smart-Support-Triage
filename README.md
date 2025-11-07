@@ -12,10 +12,10 @@ You can spin up a ready-to-run demo (with sample workflows auto-imported) in one
 
 🧰 **Prerequisites**
 Before starting, ensure you have the following installed:
-	•	Docker Desktop (v4.0+ or Docker Engine 20.10+)
-	•	docker compose (Compose V2 CLI, bundled with Docker Desktop)
-	•	make (optional, used for convenience commands)
-	•	A Unix-like shell (macOS, Linux, or WSL2 on Windows)
+	- Docker Desktop (v4.0+ or Docker Engine 20.10+)
+	- docker compose (Compose V2 CLI, bundled with Docker Desktop)
+	- make (optional, used for convenience commands)
+	- A Unix-like shell (macOS, Linux, or WSL2 on Windows)
 
 ```bash
 make up
