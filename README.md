@@ -54,12 +54,13 @@ make up
 ## 🧠 How It Works
 
 ```mermaid
-graph TD;
-    A[Webhook or Mock Data] --> B[OpenAI Classify & Summarize Incident];
-    B --> C[RAG Knowledge Base Vector Search (AI Agent)];
-    C --> D[Intelligent Routing];
-    D --> E[Slack/Email/Jira Ticket];
-    E --> F[PostgreSQL Log];
+graph TD
+    A[Webhook (or Manual Trigger)]
+      --> B[OpenAI: Classify and Summarize Ticket]
+      --> C[RAG Knowledge Base Vector Search (AI Agent)]
+      --> D[Intelligent Routing]
+      --> E[Slack / Email / Jira Ticket]
+      --> F[Postgres Log]
 ```
 
 ---
