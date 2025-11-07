@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "jsCode": "try {\n  const raw =\n    $json.choices?.[0]?.message?.content ||\n    $json.output?.[0]?.content?.[0]?.text ||\n    $json.text ||\n    \"\";\n  if (!raw) throw new Error(\"No text content found in model output\");\n\n  const text = raw.trim().replace(/```json|```/g, \"\");\n  const result = JSON.parse(text);\n\n  const required = [\"category\", \"is_urgent\", \"complexity_score\", \"summary\"];\n  const missing = required.filter(f => result[f] === undefined);\n  if (missing.length) throw new Error(\"Missing fields: \" + missing.join(\", \"));\n\n  const usage = $json.usage || {};\n  result.prompt_tokens = usage.prompt_tokens ?? null;\n  result.completion_tokens = usage.completion_tokens ?? null;\n  result.total_tokens = usage.total_tokens ?? null;\n  result.model = $json.model || \"unknown\";\n\n  return [{ json: result }];\n\n} catch (err) {\n  throw new Error(\"Invalid or non-JSON AI response: \" + err.message);\n}"
+        "jsCode": "try {\n  const raw =\n    $json.choices?.[0]?.message?.content ||\n    $json.output?.[0]?.content?.[0]?.text ||\n    $json.text ||\n    \"\";\n  if (!raw) throw new Error(\"No text content found in model output\");\n\n  // Clean up the text - remove markdown code blocks if present\n  const text = raw.trim().replace(/```json|```/g, \"\");\n  \n  // Parse JSON\n  const result = JSON.parse(text);\n\n  // Validate required fields exist\n  const required = [\"category\", \"is_urgent\", \"complexity_score\", \"summary\"];\n  const missing = required.filter(f => result[f] === undefined);\n  if (missing.length) throw new Error(\"Missing fields: \" + missing.join(\", \"));\n\n  // Validate field types and ranges\n  if (typeof result.complexity_score !== 'number' || result.complexity_score < 0 || result.complexity_score > 100) {\n    throw new Error('complexity_score must be a number between 0-100, got: ' + result.complexity_score);\n  }\n  if (typeof result.is_urgent !== 'boolean') {\n    throw new Error('is_urgent must be a boolean, got: ' + typeof result.is_urgent);\n  }\n  if (typeof result.category !== 'string') {\n    throw new Error('category must be a string');\n  }\n\n  // Capture token usage\n  const usage = $json.usage || {};\n  result.prompt_tokens = usage.prompt_tokens ?? null;\n  result.completion_tokens = usage.completion_tokens ?? null;\n  result.total_tokens = usage.total_tokens ?? null;\n  result.model = $json.model || \"unknown\";\n\n  return [{ json: result }];\n\n} catch (err) {\n  throw new Error(\"Invalid or non-JSON AI response: \" + err.message);\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -63,6 +63,7 @@
       "name": "Deduce Complexity",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
+      "maxTries": 3,
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
@@ -161,6 +162,9 @@
       ],
       "id": "276d9758-00db-4dc0-a3e1-a67c71d76f47",
       "name": "Backup (Lite Model)",
+      "maxTries": 2,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
@@ -242,12 +246,10 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false,
-    "errorWorkflow": "TBk81utIUYxRkhaI"
+    "errorWorkflow": "TBk81utIUYxRkhaI",
+    "executionOrder": "v1"
   },
-  "versionId": "94815598-e959-4c41-9c56-82cccdfb04c0",
+  "versionId": "0a0db018-70c3-470c-ace4-f257eb9d665f",
   "meta": {
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
   },

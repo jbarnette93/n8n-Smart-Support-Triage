@@ -14,8 +14,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "jonathan.barnette@gmail.com ",
-        "toEmail": "jonathan.barnette@gmail.com ",
+        "fromEmail": "example@example.com",
+        "toEmail": "example@example.com",
         "subject": "=Workflow Failure:  {{ $json.workflow.name }}",
         "html": "=Workflow Failed: {{ $json.workflow.name }}<br>\nOn node: {{ $json.execution.lastNodeExecuted }}<br>\nMessage: {{ $json.execution.error.message }}<br>\nExecution instance: {{ $json.execution.url }}<br>\nError Time: {{ new Date().toISOString() }}",
         "options": {}
@@ -116,7 +116,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0a39029c-740f-407a-b7b5-c452d15e76f4",
+  "versionId": "2c2a579d-0182-44da-bf1a-609daf4163e9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"

@@ -36,6 +36,7 @@
       "name": "Create A Bug",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
+      "maxTries": 3,
       "credentials": {
         "jiraSoftwareCloudApi": {
           "id": "t3ugEGmymsenbQSp",
@@ -69,10 +70,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "caseSensitive": true,
+            "version": 2,
             "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
           "conditions": [
             {
@@ -502,12 +503,10 @@
   },
   "active": true,
   "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false,
-    "errorWorkflow": "TBk81utIUYxRkhaI"
+    "errorWorkflow": "TBk81utIUYxRkhaI",
+    "executionOrder": "v1"
   },
-  "versionId": "957660d1-6c96-4286-afba-4c82cf6f25e3",
+  "versionId": "a64c1db5-2d91-4688-9c98-a340a28e1e40",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"

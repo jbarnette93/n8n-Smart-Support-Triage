@@ -16,8 +16,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "jonathan.barnette@gmail.com ",
-        "toEmail": "jonathan.barnette@gmail.com ",
+        "fromEmail": "example@example.com",
+        "toEmail": "example@example.com",
         "subject": "Support Ticket Update",
         "html": "=Hello,\n\nYour support request has been received.<br>\nCategory: {{ $json.category }}<br>\nComplexity: {{ $json.complexity_score }}<br>\nTicket: <a href=\"{{ $json.ticket_url }}\">{{ $json.ticket_url }}</a><br>\n\nWe’ll get back to you shortly.",
         "options": {}
@@ -33,6 +33,7 @@
       "webhookId": "bc00ad6d-849a-4ba6-8749-05af9e6cd0ea",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
+      "maxTries": 3,
       "credentials": {
         "smtp": {
           "id": "nuu4lfQx6bB9PhD7",
@@ -66,6 +67,7 @@
       "notesInFlow": false,
       "retryOnFail": true,
       "waitBetweenTries": 5000,
+      "maxTries": 3,
       "credentials": {
         "slackApi": {
           "id": "YXdTnRAQKgRGXliI",
@@ -179,10 +181,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "caseSensitive": true,
+            "version": 2,
             "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
           "conditions": [
             {
@@ -324,7 +326,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b95a055b-fd9f-4268-86b3-886db8973ff6",
+  "versionId": "02044877-de30-4e57-9f7c-9df3668e640e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"

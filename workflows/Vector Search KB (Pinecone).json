@@ -26,6 +26,9 @@
       ],
       "id": "e91112eb-1cf1-4304-a29a-8c51c51a3a3d",
       "name": "Embeddings OpenAI",
+      "maxTries": 2,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
@@ -59,7 +62,8 @@
         },
         "options": {
           "responseFormat": "json_object",
-          "temperature": 0.3
+          "temperature": 0.3,
+          "timeout": 30000
         }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
@@ -70,6 +74,9 @@
       ],
       "id": "8130e239-2553-452e-8922-1eb0762b7ea1",
       "name": "OpenAI Chat Model",
+      "maxTries": 2,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "openAiApi": {
           "id": "DghdlTo00rr9gRSv",
@@ -139,28 +146,7 @@
       }
     }
   ],
-  "pinData": {
-    "Code in JavaScript1": [
-      {
-        "json": {
-          "category": "Support Ticket Guidance",
-          "suggested_fix": "To write a good support ticket, ensure you provide a clear and concise subject, a detailed description of the issue, steps to reproduce the problem, any error messages encountered, and relevant system or environment details. This helps the support team understand and address the issue efficiently.",
-          "related_docs": [
-            "README.md",
-            "04-billing-invoices.md",
-            "10-sso-saml-oidc.md"
-          ]
-        }
-      }
-    ],
-    "AI Agent": [
-      {
-        "json": {
-          "output": "{\n  \"category\": \"Support Ticket Guidance\",\n  \"suggested_fix\": \"To write a good support ticket, ensure you provide a clear and concise subject, a detailed description of the issue, steps to reproduce the problem, any error messages encountered, and relevant system or environment details. This helps the support team understand and address the issue efficiently.\",\n  \"related_docs\": [\"README.md\", \"04-billing-invoices.md\", \"10-sso-saml-oidc.md\"]\n}"
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -238,7 +224,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ad4eb495-1702-49ac-93bc-456cd57c2d77",
+  "versionId": "9853d452-b176-4981-93b5-9fc2ac92deb4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "770fb38c63bcc2e12acec9f7736933f1584f732a437d461627c5073e98a6bd6f"
